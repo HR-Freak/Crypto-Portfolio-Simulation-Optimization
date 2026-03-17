@@ -48,6 +48,14 @@ Assets analysed:
 
 - Cardano (ADA)
 
+- Ledger (XRP)
+
+- Dorothy ((DOT)
+
+- Dogecoin (DOGE)
+
+- Litecoin (LTC)
+
 Data frequency:
 Daily historical prices.
 
