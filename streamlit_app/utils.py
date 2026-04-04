@@ -50,3 +50,25 @@ def compute_cumulative_growth(prices, selected_coins, weights):
 def get_equal_weights(selected_coins):
     n = len(selected_coins)
     return np.array([1 / n] * n)
+
+def compute_strategy_growth(prices, selected_coins, weights, strategy_name):
+    returns = compute_returns_matrix(prices, selected_coins)
+    portfolio_returns = returns.dot(weights)
+    growth = (1 + portfolio_returns).cumprod()
+
+    return pd.DataFrame({
+        "date": growth.index,
+        "value": growth.values,
+        "strategy": strategy_name
+    })
+
+
+def compute_strategy_metrics(prices, selected_coins, weights, strategy_name):
+    metrics = compute_portfolio_metrics(prices, selected_coins, weights)
+    return {
+        "strategy": strategy_name,
+        "annual_return": metrics["annual_return"],
+        "annual_volatility": metrics["annual_volatility"],
+        "sharpe_ratio": metrics["sharpe_ratio"],
+        "max_drawdown": metrics["max_drawdown"],
+    }

@@ -30,19 +30,32 @@ def plot_growth_chart(growth_df, title="Growth"):
 
 def plot_efficient_frontier(simulations, max_sharpe, min_vol, user_point=None):
     fig = px.scatter(
-        simulations,
-        x="volatility",
-        y="return",
-        color="sharpe_ratio",
-        title="Efficient Frontier"
+    simulations,
+    x="volatility",
+    y="return",
+    color="sharpe_ratio",
+    title="Efficient Frontier",
+    labels={
+        "volatility": "Annual Volatility",
+        "return": "Annual Return",
+        "sharpe_ratio": "Sharpe Ratio"
+    },
+    color_continuous_scale="Blues",
     )
+
+    fig.update_coloraxes(colorbar=dict(x=0.90))
+
+    for trace in fig.data:
+        if trace.name not in ["Max Sharpe", "Min Volatility", "Your Portfolio"]:
+            trace.marker.size = 6
+            trace.marker.opacity = 0.55
 
     if not max_sharpe.empty:
         fig.add_trace(go.Scatter(
             x=max_sharpe["volatility"],
             y=max_sharpe["return"],
             mode="markers",
-            marker=dict(size=14, symbol="star", color="red"),
+            marker=dict(size=16, symbol="star", color="red"),
             name="Max Sharpe"
         ))
 
@@ -51,7 +64,7 @@ def plot_efficient_frontier(simulations, max_sharpe, min_vol, user_point=None):
             x=min_vol["volatility"],
             y=min_vol["return"],
             mode="markers",
-            marker=dict(size=14, symbol="star", color="blue"),
+            marker=dict(size=16, symbol="star", color="blue"),
             name="Min Volatility"
         ))
 
@@ -60,8 +73,48 @@ def plot_efficient_frontier(simulations, max_sharpe, min_vol, user_point=None):
             x=[user_point["volatility"]],
             y=[user_point["return"]],
             mode="markers",
-            marker=dict(size=14, symbol="diamond", color="black"),
+            marker=dict(size=16, symbol="diamond", color="black"),
             name="Your Portfolio"
         ))
 
+    fig.update_layout(
+    legend_title_text="Portfolio Type",
+    legend=dict(
+        orientation="v",
+        yanchor="top",
+        y=1,
+        xanchor="left",
+        x=1.02
+    ),
+    margin=dict(r=160)
+    )
+
     st.plotly_chart(fig, use_container_width=True)
+
+def plot_strategy_comparison(growth_df):
+    fig = px.line(
+        growth_df,
+        x="date",
+        y="value",
+        color="strategy",
+        title="Strategy Comparison: Growth of $1"
+    )
+
+    # Make the portfolio thicker
+    for trace in fig.data:
+        if trace.name == "Your Portfolio":
+            trace.line.width = 4
+        else:
+            trace.line.width = 2
+            trace.opacity = 0.7
+
+    st.plotly_chart(fig, use_container_width=True)
+
+
+def plot_metrics_table(metrics_df):
+    formatted = metrics_df.copy()
+    formatted["annual_return"] = formatted["annual_return"].map(lambda x: f"{x:.2%}")
+    formatted["annual_volatility"] = formatted["annual_volatility"].map(lambda x: f"{x:.2%}")
+    formatted["sharpe_ratio"] = formatted["sharpe_ratio"].map(lambda x: f"{x:.2f}")
+    formatted["max_drawdown"] = formatted["max_drawdown"].map(lambda x: f"{x:.2%}")
+    st.dataframe(formatted, use_container_width=True)

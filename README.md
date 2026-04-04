@@ -50,7 +50,7 @@ Assets analysed:
 
 - Ledger (XRP)
 
-- Dorothy ((DOT)
+- Dorothy (DOT)
 
 - Dogecoin (DOGE)
 
@@ -110,6 +110,12 @@ Financial metrics are calculated including:
 - maximum drawdown
 
 - correlation matrix
+
+- best & worst months/years
+
+- month and annual returns by coins 
+
+- S&P 500 comparaison 
 
 ### 4. Portfolio Simulation
 
@@ -198,6 +204,7 @@ notebooks/
     02_data_cleaning.ipynb
     03_risk_metrics.ipynb
     04_portfolio_simulation.ipynb
+    05_time_based_analysis.ipynb
 
 sql/
     schema.sql
@@ -205,6 +212,8 @@ sql/
 
 dashboard/
     dashboard_file.pbix
+
+tableau/
 
 reports/
     figures/
