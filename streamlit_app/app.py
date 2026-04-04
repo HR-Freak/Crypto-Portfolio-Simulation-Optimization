@@ -27,12 +27,14 @@ st.set_page_config(
 )
 
 st.title("Crypto Portfolio Simulation & Optimization App")
+st.warning("This tool is for educational purposes only. Not financial advice.")
 st.caption("Explore portfolio risk, return, diversification, and simulation using historical cryptocurrency data.")
 st.caption(
     "This simulator uses historical returns and does not predict future performance. It is designed for exploratory portfolio analysis only."
 )
 
-data = load_data()
+with st.spinner("Loading crypto data..."):
+    data = load_data()
 
 prices = data["prices"]
 summary = data["summary"]
@@ -271,3 +273,6 @@ with tab4:
 
         st.markdown("### Strategy Metrics Comparison")
         plot_metrics_table(comparison_metrics)
+
+st.markdown("---")
+st.caption("Built by Marisa • Crypto Portfolio Simulation App • 2026")
