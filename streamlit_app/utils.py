@@ -18,7 +18,7 @@ def normalize_weights_dict(weights):
 
 def compute_returns_matrix(prices, selected_coins):
     df = prices[prices["coin"].isin(selected_coins)].copy()
-    pivot = df.pivot(index="date", columns="coin", values="daily_return").dropna()
+    pivot = df.pivot(index="Date", columns="coin", values="daily_return").dropna()
     return pivot[selected_coins]
 
 def compute_portfolio_metrics(prices, selected_coins, weights):
