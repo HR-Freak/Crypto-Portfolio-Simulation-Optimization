@@ -275,4 +275,4 @@ with tab4:
         plot_metrics_table(comparison_metrics)
 
 st.markdown("---")
-st.caption("Built by Marisa • Crypto Portfolio Simulation App • 2026")
+st.caption("Built by Marisa Oliveira • Crypto Portfolio Simulation App • 2026")
