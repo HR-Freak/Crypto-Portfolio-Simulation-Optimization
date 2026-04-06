@@ -137,17 +137,17 @@ This allows identification of:
 
 - efficient portfolio distribution
 
-### 5. SQL Analytical Layer
+### 5. SQL Database
 
-Processed datasets are stored in a SQL database to support analytical queries and dashboard integration.
+A MySQL database was created to store processed datasets used in the analysis.
 
-SQL is used to:
+Scripts included:
+- Database creation
+- Table definitions
+- Data loading from CSV files
+- Validation queries
 
-- structure the data
-
-- calculate KPIs
-
-- support dashboard visualizations
+This ensures reproducibility and structured data storage.
 
 ### 6. Dashboard
 
@@ -207,8 +207,10 @@ notebooks/
     05_time_based_analysis.ipynb
 
 sql/
-    schema.sql
-    kpi_queries.sql
+    01_create_database.sql
+    02_create_tables.sql
+    03_load_data.sql
+    04_validation_queries_sql
 
 dashboard/
     dashboard_file.pbix
@@ -231,6 +233,7 @@ NumPy
 SQL
 Tableau
 yfinance API
+Streamlit
 
 _____________________________________________________________________________________________________________
 
