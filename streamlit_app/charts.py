@@ -34,7 +34,7 @@ def plot_efficient_frontier(simulations, max_sharpe, min_vol, user_point=None):
     x="volatility",
     y="return",
     color="sharpe_ratio",
-    title="Efficient Frontier",
+    title="Monte Carlo Portfolio Map",
     labels={
         "volatility": "Annual Volatility",
         "return": "Annual Return",
@@ -97,7 +97,7 @@ def plot_strategy_comparison(growth_df):
         x="date",
         y="value",
         color="strategy",
-        title="Strategy Comparison: Growth of $1"
+        title="Strategy Comparison: Growth of $1,000"
     )
 
     # Make the portfolio thicker
@@ -118,3 +118,30 @@ def plot_metrics_table(metrics_df):
     formatted["sharpe_ratio"] = formatted["sharpe_ratio"].map(lambda x: f"{x:.2f}")
     formatted["max_drawdown"] = formatted["max_drawdown"].map(lambda x: f"{x:.2%}")
     st.dataframe(formatted, use_container_width=True)
+
+def plot_metrics_heatmap(metrics_df, title="Metrics Heatmap"):
+    import plotly.express as px
+
+    heatmap_df = metrics_df.copy()
+
+    if "strategy" in heatmap_df.columns:
+        index_col = "strategy"
+    else:
+        index_col = "coin"
+
+    value_cols = [col for col in heatmap_df.columns if col != index_col]
+
+    fig = px.imshow(
+        heatmap_df.set_index(index_col)[value_cols],
+        text_auto=".2f",
+        aspect="auto",
+        color_continuous_scale="Blues",
+        title=title
+    )
+
+    fig.update_layout(
+        xaxis_title="Metric",
+        yaxis_title=""
+    )
+
+    st.plotly_chart(fig, use_container_width=True)

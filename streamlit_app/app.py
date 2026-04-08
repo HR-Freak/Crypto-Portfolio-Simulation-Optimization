@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import plotly.express as px
+
 from data_loader import load_data
 from utils import (
     compute_portfolio_metrics,
@@ -18,6 +20,7 @@ from charts import (
     plot_efficient_frontier,
     plot_strategy_comparison,
     plot_metrics_table,
+    plot_metrics_heatmap,
 )
 
 st.set_page_config(
@@ -27,20 +30,19 @@ st.set_page_config(
 )
 
 st.title("Crypto Portfolio Simulation & Optimization App")
+st.caption(
+    "Interactive tool to compare crypto assets, build custom portfolios, "
+    "and explore risk-return trade-offs using historical data."
+)
 st.warning("This tool is for educational purposes only. Not financial advice.")
 st.caption("Explore portfolio risk, return, diversification, and simulation using historical cryptocurrency data.")
 st.caption(
-    "This simulator uses historical returns and does not predict future performance. It is designed for exploratory portfolio analysis only."
+    "This simulator uses historical returns and does not predict future performance. "
+    "It is designed for exploratory portfolio analysis only."
 )
 
 with st.spinner("Loading crypto data..."):
     data = load_data()
-
-prices = data["prices"]
-summary = data["summary"]
-simulations = data["simulations"]
-max_sharpe = data["max_sharpe"]
-min_vol = data["min_vol"]
 
 prices = data["prices"]
 summary = data["summary"]
@@ -80,38 +82,107 @@ tab1, tab2, tab3, tab4 = st.tabs([
 
 with tab1:
     st.subheader("Market Overview")
-    st.caption("This tab shows fixed historical metrics for each selected coin, so it does not change when portfolio weights are adjusted.")
+    st.markdown(
+        "This section compares each selected coin using four core metrics: "
+        "**annual return**, **annual volatility**, **Sharpe ratio**, and **maximum drawdown**."
+    )
+    st.info(
+        "**How to read these metrics:**\n\n"
+        "- **Annual Return**: average yearly growth.\n"
+        "- **Annual Volatility**: how unstable returns are.\n"
+        "- **Sharpe Ratio**: return earned per unit of risk.\n"
+        "- **Max Drawdown**: largest drop from a peak to a trough."
+    )
+    st.caption(
+        "This tab shows fixed historical metrics for each selected coin, "
+        "so it does not change when portfolio weights are adjusted."
+    )
 
     filtered_summary = summary[summary["coin"].isin(selected_coins)].copy()
     st.dataframe(filtered_summary, use_container_width=True)
 
     plot_metric_bars(filtered_summary)
 
+    st.markdown("### Metric Heatmap")
+    plot_metrics_heatmap(
+    filtered_summary[["coin", "annual_return", "annual_volatility", "sharpe_ratio", "max_drawdown"]],
+    title="Coin Comparison Heatmap"
+)
+
+
 with tab2:
     st.subheader("Portfolio Builder")
-
     st.markdown("Adjust the portfolio weights below.")
     st.caption("Adjust the weights and see how return, risk, drawdown, and cumulative growth change.")
+    st.caption("Tip: weights must sum to 100%. You can type exact values manually and then normalize if needed.")
 
-    weights = {}
+    # initialize session state for weights
+    default_weight = int(100 / len(selected_coins))
+
+    for coin in selected_coins:
+        key = f"weight_{coin}"
+        if key not in st.session_state:
+            st.session_state[key] = default_weight
+
+    # remove old weights from session if coin was deselected
+    existing_weight_keys = [k for k in st.session_state.keys() if k.startswith("weight_")]
+    valid_keys = {f"weight_{coin}" for coin in selected_coins}
+    for key in existing_weight_keys:
+        if key not in valid_keys:
+            del st.session_state[key]
+
     cols = st.columns(min(4, len(selected_coins)))
 
     for i, coin in enumerate(selected_coins):
         with cols[i % len(cols)]:
-            weights[coin] = st.slider(
+            st.number_input(
                 f"{coin} weight (%)",
                 min_value=0,
                 max_value=100,
-                value=int(100 / len(selected_coins)),
-                step=1
+                step=1,
+                key=f"weight_{coin}"
             )
+
+    weights = {coin: st.session_state[f"weight_{coin}"] for coin in selected_coins}
 
     total_weight = sum(weights.values())
     st.write(f"**Total weight:** {total_weight}%")
 
-    if st.button("Normalize weights to 100%"):
-        weights = normalize_weights_dict(weights)
-        st.rerun()
+    col_a, col_b = st.columns([1, 1])
+
+    with col_a:
+        if st.button("Normalize weights to 100%"):
+            normalized = normalize_weights_dict(weights)
+            for coin, value in normalized.items():
+                st.session_state[f"weight_{coin}"] = value
+            st.rerun()
+
+    with col_b:
+        if st.button("Auto-adjust remaining to 100%"):
+            if len(selected_coins) > 1:
+                current_total = sum(weights.values())
+                diff = 100 - current_total
+
+                other_coins = selected_coins[:-1]
+                if len(other_coins) > 0:
+                    share = diff // len(other_coins)
+                    remainder = diff % len(other_coins)
+
+                    for idx, coin in enumerate(other_coins):
+                        new_val = st.session_state[f"weight_{coin}"] + share
+                        if idx < abs(remainder):
+                            new_val += 1 if diff > 0 else -1
+                        st.session_state[f"weight_{coin}"] = max(0, min(100, new_val))
+
+                    weights = {coin: st.session_state[f"weight_{coin}"] for coin in selected_coins}
+                    normalized = normalize_weights_dict(weights)
+                    for coin, value in normalized.items():
+                        st.session_state[f"weight_{coin}"] = value
+
+                    st.rerun()
+
+    weights = {coin: st.session_state[f"weight_{coin}"] for coin in selected_coins}
+    total_weight = sum(weights.values())
 
     if total_weight != 100:
         st.warning("Weights do not sum to 100%. Metrics below are hidden until corrected.")
@@ -140,13 +211,11 @@ with tab2:
 
             comparison_growth = growth_df.merge(equal_growth_df, on="date", how="inner")
 
-            import plotly.express as px
-
             fig_growth = px.line(
                 comparison_growth,
                 x="date",
                 y=["Your Portfolio", "Equal Weight"],
-                title="Growth of $1: Your Portfolio vs Equal Weight"
+                title="Growth of $1,000 Invested: Your Portfolio vs Equal Weight"
             )
 
             fig_growth.update_layout(
@@ -181,19 +250,42 @@ with tab2:
                     f"(${final_user:.2f})."
                 )
 
+    st.caption(
+        "Max Drawdown measures the largest historical loss from a previous peak. "
+        "For example, a max drawdown of -80% means the portfolio lost 80% of its value "
+        "from its highest point before recovering."
+    )
+
+
 with tab3:
     st.subheader("Monte Carlo Simulation")
+    st.markdown(
+        "This simulation generates thousands of possible portfolio allocations using the selected coins. "
+        "Each point represents one portfolio with a different combination of weights."
+    )
+
+    st.info(
+        "**What this chart shows:**\n\n"
+        "- The x-axis is **annual volatility** (risk).\n"
+        "- The y-axis is **annual return**.\n"
+        "- Color represents the **Sharpe ratio**.\n"
+        "- The **Max Sharpe** point is the best risk-adjusted portfolio.\n"
+        "- The **Min Volatility** point is the lowest-risk portfolio.\n"
+        "- **Your Portfolio** shows where your custom allocation sits relative to those benchmarks."
+    )
 
     filtered_sims = simulations.copy()
     if len(filtered_sims) > n_sims_to_show:
-        filtered_sims = filtered_sims.sample(n_sims_to_show, random_state=42)
+        filtered_sims = filtered_sims.sample(n=n_sims_to_show, random_state=42)
 
     user_point = None
+    total_weight = sum(st.session_state[f"weight_{coin}"] for coin in selected_coins)
+
     if total_weight == 100:
         user_metrics = compute_portfolio_metrics(
             prices,
             selected_coins,
-            np.array([weights[c] / 100 for c in selected_coins])
+            np.array([st.session_state[f"weight_{coin}"] / 100 for coin in selected_coins])
         )
         user_point = {
             "volatility": user_metrics["annual_volatility"],
@@ -203,22 +295,30 @@ with tab3:
 
     plot_efficient_frontier(filtered_sims, max_sharpe, min_vol, user_point)
 
+
 with tab4:
     st.subheader("Scenario Explorer")
+    st.markdown(
+        "This section compares your custom portfolio against benchmark strategies to show how different allocation approaches would have performed over time."
+    )
+
+    total_weight = sum(st.session_state[f"weight_{coin}"] for coin in selected_coins)
 
     if total_weight != 100:
         st.warning("Please adjust the portfolio weights to total 100% to compare strategies.")
     else:
-        selected_weight_array = np.array([weights[c] / 100 for c in selected_coins])
+        selected_weight_array = np.array([st.session_state[f"weight_{coin}"] / 100 for coin in selected_coins])
+
+        strategy_growth_frames = []
+        strategy_metrics_rows = []
 
         # user portfolio
         user_growth = compute_strategy_growth(prices, selected_coins, selected_weight_array, "Your Portfolio")
         user_metrics_row = compute_strategy_metrics(prices, selected_coins, selected_weight_array, "Your Portfolio")
+        strategy_growth_frames.append(user_growth)
+        strategy_metrics_rows.append(user_metrics_row)
 
-        # BTC-only 
-        strategy_growth_frames = [user_growth]
-        strategy_metrics_rows = [user_metrics_row]
-
+        # BTC only
         if "BTC" in selected_coins:
             btc_weights = np.array([1.0 if c == "BTC" else 0.0 for c in selected_coins])
             btc_growth = compute_strategy_growth(prices, selected_coins, btc_weights, "BTC Only")
@@ -233,7 +333,7 @@ with tab4:
         strategy_growth_frames.append(eq_growth)
         strategy_metrics_rows.append(eq_metrics)
 
-        # max sharpe and min vol from saved portfolios
+        # max sharpe
         max_sharpe_weights = np.array([
             max_sharpe[c.lower()].iloc[0] if c.lower() in max_sharpe.columns else 0.0
             for c in selected_coins
@@ -245,6 +345,7 @@ with tab4:
             strategy_growth_frames.append(ms_growth)
             strategy_metrics_rows.append(ms_metrics)
 
+        # min volatility
         min_vol_weights = np.array([
             min_vol[c.lower()].iloc[0] if c.lower() in min_vol.columns else 0.0
             for c in selected_coins
@@ -273,6 +374,12 @@ with tab4:
 
         st.markdown("### Strategy Metrics Comparison")
         plot_metrics_table(comparison_metrics)
+
+        st.markdown("### Strategy Heatmap")
+        plot_metrics_heatmap(
+            comparison_metrics[["strategy", "annual_return", "annual_volatility", "sharpe_ratio", "max_drawdown"]],
+            title="Strategy Metrics Heatmap"
+    )
 
 st.markdown("---")
 st.caption("Built by Marisa Oliveira • Crypto Portfolio Simulation App • 2026")
