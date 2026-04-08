@@ -44,7 +44,7 @@ def compute_portfolio_metrics(prices, selected_coins, weights):
 def compute_cumulative_growth(prices, selected_coins, weights):
     returns = compute_returns_matrix(prices, selected_coins)
     portfolio_returns = returns.dot(weights)
-    growth = (1 + portfolio_returns).cumprod()
+    growth = 1000 * (1 + portfolio_returns).cumprod()
     return pd.DataFrame({"date": growth.index, "portfolio": growth.values})
 
 def get_equal_weights(selected_coins):
