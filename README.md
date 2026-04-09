@@ -227,46 +227,46 @@ It becomes a **decision-support tool** where users can:
 Crypto-Portfolio-Simulation-Optimization/
 │
 ├── data/
-│ ├── raw/
-│ │ └── crypto_prices_raw.csv
-│ └── processed/
-│ ├── annual_returns_by_coin.csv
-│ ├── best_worst_months.csv
-│ ├── best_worst_years.csv
-│ ├── correlation_with_sp500.csv
-│ ├── crypto_prices_processed.csv
-│ ├── crypto_prices_processed_time_enriched.csv
-│ ├── crypto_sp500_merged.csv
-│ ├── crypto_summary_metrics.csv
-│ ├── max_sharpe_portfolio.csv
-│ ├── min_volatility_portfolio.csv
-│ ├── monthly_returns_by_coin.csv
-│ └── portfolio_simulations.csv
+│   ├── raw/
+│   │   └── crypto_prices_raw.csv
+│   └── processed/
+│       ├── annual_returns_by_coin.csv
+│       ├── best_worst_months.csv
+│       ├── best_worst_years.csv
+│       ├── correlation_with_sp500.csv
+│       ├── crypto_prices_processed.csv
+│       ├── crypto_prices_processed_time_enriched.csv
+│       ├── crypto_sp500_merged.csv
+│       ├── crypto_summary_metrics.csv
+│       ├── max_sharpe_portfolio.csv
+│       ├── min_volatility_portfolio.csv
+│       ├── monthly_returns_by_coin.csv
+│       └── portfolio_simulations.csv
 │
 ├── notebooks/
-│ ├── 01_data_collection.ipynb
-│ ├── 02_data_cleaning_and_returns.ipynb
-│ ├── 03_risk_metrics.ipynb
-│ ├── 04_portfolio_simulation.ipynb
-│ └── 05_time_based_analysis.ipynb
+│   ├── 01_data_collection.ipynb
+│   ├── 02_data_cleaning_and_returns.ipynb
+│   ├── 03_risk_metrics.ipynb
+│   ├── 04_portfolio_simulation.ipynb
+│   └── 05_time_based_analysis.ipynb
 │
 ├── sql/
-│ ├── 01_create_database.sql
-│ ├── 02_create_tables.sql
-│ ├── 03_load_data.sql
-│ └── 04_validation_queries.sql
+│   ├── 01_create_database.sql
+│   ├── 02_create_tables.sql
+│   ├── 03_load_data.sql
+│   └── 04_validation_queries.sql
 │
 ├── streamlit_app/
-│ ├── app.py
-│ ├── charts.py
-│ ├── data_loader.py
-│ └── utils.py
+│   ├── app.py
+│   ├── charts.py
+│   ├── data_loader.py
+│   └── utils.py
 │
 ├── tableau/
-│ └── Crypto Portfolio Simulation.twbx
+│   └── Crypto Portfolio Simulation.twbx
 │
 ├── reports/
-│ └── figures/
+│   └── figures/
 │
 ├── README.md
 └── requirements.txt
