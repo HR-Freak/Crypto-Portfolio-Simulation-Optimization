@@ -105,10 +105,9 @@ with tab1:
 
     st.markdown("### Metric Heatmap")
     plot_metrics_heatmap(
-    filtered_summary[["coin", "annual_return", "annual_volatility", "sharpe_ratio", "max_drawdown"]],
-    title="Coin Comparison Heatmap"
-)
-
+        filtered_summary[["coin", "annual_return", "annual_volatility", "sharpe_ratio", "max_drawdown"]],
+        title="Coin Comparison Heatmap"
+    )
 
 with tab2:
     st.subheader("Portfolio Builder")
@@ -116,7 +115,13 @@ with tab2:
     st.caption("Adjust the weights and see how return, risk, drawdown, and cumulative growth change.")
     st.caption("Tip: weights must sum to 100%. You can type exact values manually and then normalize if needed.")
 
-    # initialize session state for weights
+    # STEP 1: if auto-adjust created temp weights, load them BEFORE widgets are created
+    if "adjusted_weights" in st.session_state:
+        for coin, value in st.session_state["adjusted_weights"].items():
+            st.session_state[f"weight_{coin}"] = value
+        del st.session_state["adjusted_weights"]
+
+    # STEP 2: initialize session state for current selected coins
     default_weight = int(100 / len(selected_coins))
 
     for coin in selected_coins:
@@ -124,13 +129,14 @@ with tab2:
         if key not in st.session_state:
             st.session_state[key] = default_weight
 
-    # remove old weights from session if coin was deselected
+    # STEP 3: remove session state keys for deselected coins
     existing_weight_keys = [k for k in st.session_state.keys() if k.startswith("weight_")]
     valid_keys = {f"weight_{coin}" for coin in selected_coins}
     for key in existing_weight_keys:
         if key not in valid_keys:
             del st.session_state[key]
 
+    # STEP 4: render number inputs
     cols = st.columns(min(4, len(selected_coins)))
 
     for i, coin in enumerate(selected_coins):
@@ -143,9 +149,10 @@ with tab2:
                 key=f"weight_{coin}"
             )
 
+    # STEP 5: rebuild weights from session state
     weights = {coin: st.session_state[f"weight_{coin}"] for coin in selected_coins}
-
     total_weight = sum(weights.values())
+
     st.write(f"**Total weight:** {total_weight}%")
 
     col_a, col_b = st.columns([1, 1])
@@ -153,8 +160,7 @@ with tab2:
     with col_a:
         if st.button("Normalize weights to 100%"):
             normalized = normalize_weights_dict(weights)
-            for coin, value in normalized.items():
-                st.session_state[f"weight_{coin}"] = value
+            st.session_state["adjusted_weights"] = normalized
             st.rerun()
 
     with col_b:
@@ -163,24 +169,28 @@ with tab2:
                 current_total = sum(weights.values())
                 diff = 100 - current_total
 
+                # keep the last coin fixed, distribute the difference across the others
                 other_coins = selected_coins[:-1]
+
                 if len(other_coins) > 0:
                     share = diff // len(other_coins)
                     remainder = diff % len(other_coins)
 
+                    updated_weights = weights.copy()
+
                     for idx, coin in enumerate(other_coins):
-                        new_val = st.session_state[f"weight_{coin}"] + share
+                        new_val = updated_weights[coin] + share
+
                         if idx < abs(remainder):
                             new_val += 1 if diff > 0 else -1
-                        st.session_state[f"weight_{coin}"] = max(0, min(100, new_val))
 
-                    weights = {coin: st.session_state[f"weight_{coin}"] for coin in selected_coins}
-                    normalized = normalize_weights_dict(weights)
-                    for coin, value in normalized.items():
-                        st.session_state[f"weight_{coin}"] = value
+                        updated_weights[coin] = max(0, min(100, new_val))
 
+                    updated_weights = normalize_weights_dict(updated_weights)
+                    st.session_state["adjusted_weights"] = updated_weights
                     st.rerun()
 
+    # STEP 6: rebuild again after any rerun logic
     weights = {coin: st.session_state[f"weight_{coin}"] for coin in selected_coins}
     total_weight = sum(weights.values())
 
@@ -256,7 +266,6 @@ with tab2:
         "from its highest point before recovering."
     )
 
-
 with tab3:
     st.subheader("Monte Carlo Simulation")
     st.markdown(
@@ -294,7 +303,6 @@ with tab3:
         }
 
     plot_efficient_frontier(filtered_sims, max_sharpe, min_vol, user_point)
-
 
 with tab4:
     st.subheader("Scenario Explorer")
@@ -379,7 +387,7 @@ with tab4:
         plot_metrics_heatmap(
             comparison_metrics[["strategy", "annual_return", "annual_volatility", "sharpe_ratio", "max_drawdown"]],
             title="Strategy Metrics Heatmap"
-    )
+        )
 
 st.markdown("---")
 st.caption("Built by Marisa Oliveira • Crypto Portfolio Simulation App • 2026")
