@@ -228,7 +228,20 @@ Crypto-Portfolio-Simulation-Optimization/
 │
 ├── data/
 │ ├── raw/
+│ │ └── crypto_prices_raw.csv
 │ └── processed/
+│ ├── annual_returns_by_coin.csv
+│ ├── best_worst_months.csv
+│ ├── best_worst_years.csv
+│ ├── correlation_with_sp500.csv
+│ ├── crypto_prices_processed.csv
+│ ├── crypto_prices_processed_time_enriched.csv
+│ ├── crypto_sp500_merged.csv
+│ ├── crypto_summary_metrics.csv
+│ ├── max_sharpe_portfolio.csv
+│ ├── min_volatility_portfolio.csv
+│ ├── monthly_returns_by_coin.csv
+│ └── portfolio_simulations.csv
 │
 ├── notebooks/
 │ ├── 01_data_collection.ipynb
@@ -257,7 +270,6 @@ Crypto-Portfolio-Simulation-Optimization/
 │
 ├── README.md
 └── requirements.txt
-
 
 ---
 
