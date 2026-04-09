@@ -224,6 +224,8 @@ It becomes a **decision-support tool** where users can:
 ---
 
 ## 🗂 Project Structure
+
+```
 Crypto-Portfolio-Simulation-Optimization/
 │
 ├── data/
@@ -270,6 +272,7 @@ Crypto-Portfolio-Simulation-Optimization/
 │
 ├── README.md
 └── requirements.txt
+```
 
 ---
 
