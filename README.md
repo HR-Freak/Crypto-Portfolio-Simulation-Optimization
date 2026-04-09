@@ -216,10 +216,10 @@ It becomes a **decision-support tool** where users can:
 ## 🌐 Project Outputs
 
 ### 🔗 Streamlit App  
-👉 https://your-streamlit-link  
+👉 [https://your-streamlit-link  ](https://crypto-portfolio-simulation-optimization-isaoli.streamlit.app/)
 
 ### 🔗 Tableau Dashboard  
-👉 https://your-tableau-link  
+👉 [https://your-tableau-link](https://public.tableau.com/views/CryptoPortfolioSimulation/Summary?:language=pt-BR&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link)  
 
 ---
 
