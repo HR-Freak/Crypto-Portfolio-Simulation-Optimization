@@ -222,7 +222,7 @@ It becomes a **decision-support tool** where users can:
 👉 [https://tableau-link](https://public.tableau.com/views/CryptoPortfolioSimulation/Summary?:language=pt-BR&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link)  
 
 ### 🔗 Presentation Deck 
-👉[https://tableau-link](https://drive.google.com/file/d/1eA_Va5R2BBMWREOlnzup0kKHnwG1qWks/view?usp=sharing)
+👉[https://presentation-link](https://drive.google.com/file/d/1eA_Va5R2BBMWREOlnzup0kKHnwG1qWks/view?usp=sharing)
 
 ---
 
