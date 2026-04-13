@@ -6,7 +6,7 @@ This project analyses historical cryptocurrency market data to explore return, v
 
 The goal is to understand how crypto assets behave individually and in combination, and to evaluate whether diversification improves risk-adjusted performance.
 
-This is not just an analysis — it is a **full data product**, combining:
+This is not just an analysis, it is a **full data product**, combining:
 
 - 📈 Exploratory Data Analysis  
 - ⚙️ Financial metric engineering  
