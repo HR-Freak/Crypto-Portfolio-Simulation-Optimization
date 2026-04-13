@@ -171,7 +171,7 @@ Interactive app where users can:
 ### ⚠️ Risk
 
 - All assets show **extreme drawdowns**  
-- Risk is not just volatility — downside is significant  
+- Risk is not just volatility; downside is significant  
 
 ### ⏳ Time Behaviour
 
